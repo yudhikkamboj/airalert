@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
+import java.util.Map;
 
 @NoArgsConstructor
 @Slf4j
@@ -18,7 +19,11 @@ public class AirAlertService {
     private AdsbClient adsbClient = new AdsbClient();
     private StateMapper stateMapper = new StateMapper();
 
-    public Boolean executeService(){
+    public Boolean executeService(Map<Object, Object> input){
+        if(input != null && !input.isEmpty()){
+            log.info("Input is not empty");
+        }
+
         List<State> allState = fetchAllStateResponse();
         List<AircraftDetails> aircraftDetails = adsbClient.fetchAircraftDetails(allState);
 

@@ -1,8 +1,6 @@
 package airalert.handler;
 
-import airalert.mapper.StateMapper;
 import airalert.service.AirAlertService;
-import airalert.service.OpenSkyApiClient;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 
@@ -16,7 +14,7 @@ public class LambdaFunctionHandler implements RequestHandler<Map<Object, Object>
     @Override
     public String handleRequest(Map<Object, Object> input, Context context) {
         System.out.println("Input: " + input);
-        Boolean result = airAlertService.executeService();
+        Boolean result = airAlertService.executeService(input);
         return result ? "success":"failed";
     }
 
