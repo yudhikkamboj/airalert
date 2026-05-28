@@ -24,10 +24,8 @@ Resources:
           ParameterName: airalert/*
       Environment:
         Variables:
-          client_id:
-            Fn::Sub: '{{resolve:ssm-secure:/airalert/client_id}}'
-          client_secret:
-            Fn::Sub: '{{resolve:ssm:/airalert/client_secret}}'
+          client_id: ${clientId}
+          client_secret: ${clientSecret}
     Metadata:
       SamResourceId: AirAlertFunction
   AirAlertSchedulerRole:

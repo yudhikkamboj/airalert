@@ -1,0 +1,22 @@
+# Maven
+target/
+dependency-reduced-pom.xml
+
+# SAM
+.aws-sam/
+samconfig.toml
+
+# IntelliJ
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# Local env
+locals.json
+*.env
+
+# OS
+.DS_Store
+Thumbs.db
