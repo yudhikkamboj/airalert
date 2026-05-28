@@ -1,0 +1,82 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'AirAlert
+
+  Sample SAM Template for AirAlert
+
+  '
+Globals:
+  Function:
+    Timeout: 20
+    MemorySize: 512
+Resources:
+  AirAlertFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Zip
+      CodeUri: AirAlertFunction
+      Handler: airalert.handler.LambdaFunctionHandler::handleRequest
+      Runtime: java21
+      Architectures:
+      - x86_64
+      Policies:
+      - SSMParameterReadPolicy:
+          ParameterName: airalert/*
+      Environment:
+        Variables:
+          client_id:
+            Fn::Sub: '{{resolve:ssm-secure:/airalert/client_id}}'
+          client_secret:
+            Fn::Sub: '{{resolve:ssm:/airalert/client_secret}}'
+    Metadata:
+      SamResourceId: AirAlertFunction
+  AirAlertSchedulerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: scheduler.amazonaws.com
+          Action: sts:AssumeRole
+      Policies:
+      - PolicyName: InvokeAirAlertFunction
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action: lambda:InvokeFunction
+            Resource:
+              Fn::GetAtt:
+              - AirAlertFunction
+              - Arn
+  AirAlertScheduler:
+    Type: AWS::Scheduler::Schedule
+    Properties:
+      Name: AirAlertSchedule
+      ScheduleExpression: rate(5 minutes)
+      FlexibleTimeWindow:
+        Mode: 'OFF'
+      Target:
+        Arn:
+          Fn::GetAtt:
+          - AirAlertFunction
+          - Arn
+        RoleArn:
+          Fn::GetAtt:
+          - AirAlertSchedulerRole
+          - Arn
+Outputs:
+  AirAlertFunction:
+    Description: AirALert Lambda Function ARN
+    Value:
+      Fn::GetAtt:
+      - AirAlertFunction
+      - Arn
+  AirAlertSchedulerRoleArn:
+    Description: IAM Role ARN for EventBridge Scheduler
+    Value:
+      Fn::GetAtt:
+      - AirAlertSchedulerRole
+      - Arn
