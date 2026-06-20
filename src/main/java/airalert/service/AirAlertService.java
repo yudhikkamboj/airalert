@@ -10,6 +10,7 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @NoArgsConstructor
 @Slf4j
@@ -18,6 +19,7 @@ public class AirAlertService {
     private OpenSkyApiClient openSkyApiClient = new OpenSkyApiClient();
     private AdsbClient adsbClient = new AdsbClient();
     private StateMapper stateMapper = new StateMapper();
+    private EmailService emailService = new EmailService();
 
     public Boolean executeService(Map<Object, Object> input){
         if(input != null && !input.isEmpty()){
@@ -31,6 +33,7 @@ public class AirAlertService {
             log.info("No aircraft found!!!");
         }else{
             log.info("Aircraft found nearby!!!");
+            emailService.sendEmail(aircraftDetails);
         }
 
         for(AircraftDetails aircraft : aircraftDetails){
@@ -43,14 +46,11 @@ public class AirAlertService {
     public List<State> fetchAllStateResponse(){
 
         try {
-            String token = openSkyApiClient.fetchBearerToken();
-
             String openSkyResponseString = openSkyApiClient.sendStateRequest(
                     "30.5",
                     "29.0",
                     "77.5",
-                    "76.0",
-                    token);
+                    "76.0");
 
             ObjectMapper objectMapper = new ObjectMapper();
             AllStateResponse allStateResponse = objectMapper
